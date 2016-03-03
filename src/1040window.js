@@ -99,19 +99,21 @@ var svg = d3.select("#map1040").append("svg")
             .scale(scale).translate(offset);
         path = path.projection(projection);
     
-        /*
-        svg.selectAll("path").data(subunits).enter().append("path")
-            .attr("d", path)
-            .style("fill", "red")
+        svg.selectAll(".subunit")
+        .data(subunits.features)
+        .enter().append("path")
+        .attr("class", function(d) { return "subunit " + d.id; })
+        .attr("d", path)
+        .style("fill", "LightGreen")
             .style("stroke-width", "1")
-            .style("stroke", "black");
-            */
-        svg.append("path")
-            .datum(subunits)
-            .attr("d", path)
-            .style("fill", "LightGreen")
-            .style("stroke-width", "1")
-            .style("stroke", "black");
+            .style("stroke", "black")
+                        .on("dblclick", function(){
+                //d3.selectAll(".voronoi").classed({'selected': false});
+                //d3.select(this).classed({'selected': true});
+                //d3.select(this).style({fill: "yellow"});
+                var vPoly = d3.select(this).datum();
+                console.log(this);
+        });
 
     });
 

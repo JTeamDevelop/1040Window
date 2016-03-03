@@ -1,0 +1,16 @@
+#map1040{
+  margin:auto;
+}
+
+path {
+  stroke: #fff;
+}
+
+circle {
+  fill: #000;
+  pointer-events: none;
+}
+
+.selected {
+  fill: yellow;
+}

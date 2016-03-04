@@ -22,6 +22,13 @@
 */
 
 var JPKey = 'f07cf62bd819';
+var JPData = [];
+
+d3.csv("https://raw.githubusercontent.com/JTeamDevelop/1040Window/master/data/AllCountriesListing.csv")
+    .get(function(error, rows) { 
+        JPData=rows.slice(); 
+    });
+
 var cData = basicData.countries.country;
 var windowCountries = ["Afghanistan", "Albania", "Algeria", "Azerbaijan", "Bahrain", "Bangladesh", "Benin",
     "Bhutan", "Brunei", "Burkina Faso", "Cambodia", "Chad", "China", "Hong Kong", "Macao", 
@@ -31,17 +38,6 @@ var windowCountries = ["Afghanistan", "Albania", "Algeria", "Azerbaijan", "Bahra
     "Nigeria", "Oman", "Pakistan", "Qatar", "Saudi Arabia", "Senegal", "Somalia", "Sri Lanka", "Sudan", "Syria", "Taiwan",
     "Tajikistan", "Thailand", "Tunisia", "Turkey", "Turkmenistan", "United Arab Emirates", "Uzbekistan", "Vietnam",
     "West Bank / Gaza", "Western Sahara", "Yemen"];
-
-function httpGetAsync(theUrl, callback)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
-    xmlHttp.send(null);
-}
 
 function polygon(d) {
   return "M" + d.join("L") + "Z";
@@ -65,34 +61,28 @@ function zoomMap (country) {
             data = cData[i];           
         }
     }
+
+    var JPD = {};
+    for (var i=0; i<JPData.length; i++) {
+        if(JPData[i].CTRY.includes(country)) {
+            JPD = JPData[i];           
+        }
+    }
+    var $JP = $("<div id=countryData />");
+    $JP.append("<h2>"+country+"</h2>");
+    $JP.append("<strong>Population:</strong> "+JPD.POPLPEOPLES);
+    $JP.append("</br><strong>% of Pop Least Reached:</strong> "+JPD.PCTPOPLR.substr(0,4));
+    $JP.append("</br><strong>People Groups:</strong> "+JPD.CNTPEOPLES);
+    $("#mainMap").append($JP);
     
     var ccode = data.isoAlpha3.toLowerCase();
     var mapurl = 'https://raw.githubusercontent.com/markmarkoh/datamaps/master/src/js/data/'+ccode+ '.topo.json';
     var jpurl = 'https://joshuaproject.net/api/v2/countries?api_key='+JPKey+'&ISO3='+data.isoAlpha3;
-/*
+    
   d3.json(jpurl, function(error, json) {
         if (error) return console.error(error);
+        console.log(json)
   });
-
-
-    $.ajax({
-        url: 'https://joshuaproject.net/api/v2/countries?&ISO3='+data.isoAlpha3,
-        dataType: 'json',
-        crossDomain: true,
-        data: {api_key: JPKey},
-        headers: {'Origin': jpurl},
-        type: 'GET',
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader('Origin', 'jpurl');
-        } 
-    })
-    .done(function(data) {
-        var html = "<div id=countryData \>";
-    })
-    .fail(function(jqXHR, textStatus, errorThrown) {
-    });
-
-*/
 
     
 var svg = d3.select("#mainMap").append("svg")
@@ -127,23 +117,6 @@ var svg = d3.select("#mainMap").append("svg")
         projection = d3.geo.mercator().center(center)
             .scale(scale).translate(offset);
         path = path.projection(projection);
-    
-        /*
- 
-        svg.append("path").classed({'gStates': true})
-            .datum(subunits)
-            .attr("d", path)
-            .style("fill", "LightGreen")
-            .style("stroke-width", "1")
-            .style("stroke", "black")
-            .on("dblclick", function(){
-                //d3.selectAll(".voronoi").classed({'selected': false});
-                //d3.select(this).classed({'selected': true});
-                //d3.select(this).style({fill: "yellow"});
-                var vPoly = d3.select(this).datum();
-                console.log(this);
-            });
-            */
 
         svg.selectAll(".subunit")
         .data(subunits.features)
@@ -248,6 +221,4 @@ worldMap();
 $(document).on("click", ".homeLink", function(){
     worldMap();
 });
-
-
 

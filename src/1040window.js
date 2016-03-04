@@ -21,6 +21,7 @@
 
 */
 
+var JPKey = 'f07cf62bd819';
 var cData = basicData.countries.country;
 var windowCountries = ["Afghanistan", "Albania", "Algeria", "Azerbaijan", "Bahrain", "Bangladesh", "Benin",
     "Bhutan", "Brunei", "Burkina Faso", "Cambodia", "Chad", "China", "Hong Kong", "Macao", 
@@ -42,14 +43,22 @@ function httpGetAsync(theUrl, callback)
     xmlHttp.send(null);
 }
 
-
-var afgData = {};
-function setData (data) {
-    afgData = data;
+function polygon(d) {
+  return "M" + d.join("L") + "Z";
 }
-//httpGetAsync(afgUrl,setData)
 
 function zoomMap (country) {
+    $("#mainMap").empty();  
+    $("#mainMap").css("position", "");
+    $("#mainMap").css("padding-bottom", "");
+    $("#mainMap").removeClass("world");
+    $("#mainMap").addClass("zoom");
+
+    $("#breadcrumbs").empty();
+    $("#breadcrumbs").append('<span class="homeLink">World</span> > '+country);
+
+    var height = $("#mainMap").height(), width=$("#mainMap").width();
+
     var data = {};
     for (var i=0; i<cData.length; i++) {
         if(cData[i].countryName==country) {
@@ -58,19 +67,39 @@ function zoomMap (country) {
     }
     
     var ccode = data.isoAlpha3.toLowerCase();
-    var url = 'https://raw.githubusercontent.com/markmarkoh/datamaps/master/src/js/data/'+ccode+ '.topo.json';
+    var mapurl = 'https://raw.githubusercontent.com/markmarkoh/datamaps/master/src/js/data/'+ccode+ '.topo.json';
+    var jpurl = 'https://joshuaproject.net/api/v2/countries?api_key='+JPKey+'&ISO3='+data.isoAlpha3;
+/*
+  d3.json(jpurl, function(error, json) {
+        if (error) return console.error(error);
+  });
+
+
+    $.ajax({
+        url: 'https://joshuaproject.net/api/v2/countries?&ISO3='+data.isoAlpha3,
+        dataType: 'json',
+        crossDomain: true,
+        data: {api_key: JPKey},
+        headers: {'Origin': jpurl},
+        type: 'GET',
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader('Origin', 'jpurl');
+        } 
+    })
+    .done(function(data) {
+        var html = "<div id=countryData \>";
+    })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+    });
+
+*/
+
     
-
-    $("#map1040").empty();
-
-var width = 1200,
-    height = 1160;
-
-var svg = d3.select("#map1040").append("svg")
+var svg = d3.select("#mainMap").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-    d3.json(url, function(error, json) {
+    d3.json(mapurl, function(error, json) {
         if (error) return console.error(error);
 
         var subunits = topojson.feature(json, json.objects[ccode]);
@@ -99,6 +128,23 @@ var svg = d3.select("#map1040").append("svg")
             .scale(scale).translate(offset);
         path = path.projection(projection);
     
+        /*
+ 
+        svg.append("path").classed({'gStates': true})
+            .datum(subunits)
+            .attr("d", path)
+            .style("fill", "LightGreen")
+            .style("stroke-width", "1")
+            .style("stroke", "black")
+            .on("dblclick", function(){
+                //d3.selectAll(".voronoi").classed({'selected': false});
+                //d3.select(this).classed({'selected': true});
+                //d3.select(this).style({fill: "yellow"});
+                var vPoly = d3.select(this).datum();
+                console.log(this);
+            });
+            */
+
         svg.selectAll(".subunit")
         .data(subunits.features)
         .enter().append("path")
@@ -112,12 +158,23 @@ var svg = d3.select("#map1040").append("svg")
                 //d3.select(this).classed({'selected': true});
                 //d3.select(this).style({fill: "yellow"});
                 var vPoly = d3.select(this).datum();
-                console.log(this);
-        });
+                console.log(vPoly);
+            });
+
+        //d3 resize
+        d3.select(window).on('resize', function() {
+            map.resize();
+        });      
 
     });
 
 }
+
+function worldMap () {
+    $("#mainMap").empty();
+    $("#mainMap").removeClass("zoom");
+    $("#mainMap").addClass("world");
+    $("#breadcrumbs").empty();
 
 var mapData = {};
 for (var i=0; i<cData.length; i++) {
@@ -143,44 +200,54 @@ for (var i=0; i<capitaldata.length; i++) {
         });
     }
 }
-
-var map = new Datamap({
-    element: document.getElementById('map1040'),
-    fills: {
-        inWindow: 'blue',
-        defaultFill: 'grey'
-    },
-    data: mapData,
-    geographyConfig: {
-        popupTemplate: function(geo, data) {
-            if(data!=null) {
-                return ['<div class="hoverinfo"><strong>',
-                    geo.properties.name+'</strong>',
-                    '<br/>Capital: ' +  data.capital ,
-                    '<br/>Population: ' +  data.population ,
-                    '</div>'].join('');
+    
+    var map = new Datamap({
+        element: document.getElementById('mainMap'),
+        fills: {
+            inWindow: 'blue',
+            defaultFill: 'grey'
+        },
+        data: mapData,
+        geographyConfig: {
+            popupTemplate: function(geo, data) {
+                if(data!=null) {
+                    return ['<div class="hoverinfo"><strong>',
+                        geo.properties.name+'</strong>',
+                        '<br/>Capital: ' +  data.capital ,
+                        '<br/>Population: ' +  data.population ,
+                        '</div>'].join('');
+                }
+                else {
+                    return ['<div class="hoverinfo"><strong>',
+                        geo.properties.name+'</strong>',
+                        '</div>'].join('');
+                }
             }
-            else {
-                return ['<div class="hoverinfo"><strong>',
-                    geo.properties.name+'</strong>',
-                    '</div>'].join('');
-            }
+        },
+        responsive: true,
+        done: function(datamap) {
+            datamap.svg.selectAll('.datamaps-subunit').on('click', function(geo) {
+                if(windowCountries.indexOf(geo.properties.name)>-1){
+                    zoomMap(geo.properties.name);
+                }
+            });
         }
-    },
-    responsive: true,
-    done: function(datamap) {
-        datamap.svg.selectAll('.datamaps-subunit').on('click', function(geo) {
-            if(windowCountries.indexOf(geo.properties.name)>-1){
-                zoomMap(geo.properties.name);
-            }
         });
-    }
+
+    map.bubbles(capitals, {});
+
+    //d3 resize
+    d3.select(window).on('resize', function() {
+        map.resize();
+    });
+
+}
+
+worldMap();
+
+$(document).on("click", ".homeLink", function(){
+    worldMap();
 });
 
-map.bubbles(capitals, {});
 
-//alternatively with d3
-d3.select(window).on('resize', function() {
-    map.resize();
-});
 

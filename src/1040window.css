@@ -1,5 +1,36 @@
-#map1040{
+#mainMap{
   margin:auto;
+}
+.world {
+  position: relative; 
+  width: 95%; 
+  height: 53.4%;
+}
+.zoom {
+  position: fixed;
+  top: 10%; 
+  bottom: 10%;
+  left: 10%;
+  right: 10%;
+}
+
+#footer{
+  position: fixed;
+  bottom: 1%;
+  left: 0%;
+  right: 0%;
+}
+
+#countryData {
+ position:absolute;
+ top:0%;
+ left:0%; 
+}
+
+.homeLink {
+  color:blue;
+  text-decoration:underline;
+  cursor:pointer;
 }
 
 path {
@@ -13,4 +44,11 @@ circle {
 
 .selected {
   fill: yellow;
+}
+.red {
+  color:red;
+}
+.center {
+  margin:auto;
+  text-align:center;
 }

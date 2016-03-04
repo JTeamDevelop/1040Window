@@ -69,32 +69,12 @@ function zoomMap (country) {
     var ccode = data.isoAlpha3.toLowerCase();
     var mapurl = 'https://raw.githubusercontent.com/markmarkoh/datamaps/master/src/js/data/'+ccode+ '.topo.json';
     var jpurl = 'https://joshuaproject.net/api/v2/countries?api_key='+JPKey+'&ISO3='+data.isoAlpha3;
-/*
+    
   d3.json(jpurl, function(error, json) {
         if (error) return console.error(error);
+        console.log(json)
   });
 
-
-    $.ajax({
-        url: 'https://joshuaproject.net/api/v2/countries?&ISO3='+data.isoAlpha3,
-        dataType: 'json',
-        crossDomain: true,
-        data: {api_key: JPKey},
-        headers: {'Origin': jpurl},
-        type: 'GET',
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader('Origin', 'jpurl');
-        } 
-    })
-    .done(function(data) {
-        var html = "<div id=countryData \>";
-    })
-    .fail(function(jqXHR, textStatus, errorThrown) {
-    });
-
-*/
-
-    
 var svg = d3.select("#mainMap").append("svg")
     .attr("width", width)
     .attr("height", height);

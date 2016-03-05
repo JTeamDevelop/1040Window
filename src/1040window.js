@@ -84,10 +84,6 @@ function zoomMap (country) {
         console.log(json)
   });
 
-<<<<<<< HEAD
-=======
-    
->>>>>>> refs/remotes/origin/master
 var svg = d3.select("#mainMap").append("svg")
     .attr("width", width)
     .attr("height", height);

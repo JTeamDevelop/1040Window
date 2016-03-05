@@ -1,3 +1,10 @@
+#mainHeader {
+  padding-left:10px;  
+}
+#mainHeader h1{
+  font-family: 'Lato', sans-serif;
+}
+
 #mainMap{
   margin:auto;
 }
@@ -24,8 +31,12 @@
 #countryData {
  position:absolute;
  top:0%;
- left:0%; 
+ left:-5%; 
 }
+#countryData h2{
+  margin:10px 0px;
+}
+
 
 .homeLink {
   color:blue;
